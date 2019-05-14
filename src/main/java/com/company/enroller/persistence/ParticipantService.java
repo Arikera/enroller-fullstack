@@ -28,7 +28,7 @@ public class ParticipantService {
         return (Participant) connector.getSession().get(Participant.class, login);
     }
 
-    public Participant add(Participant participant) {
+    public Participant addParticipant(Participant participant) {
         String hashedPassword = passwordEncoder.encode(participant.getPassword());
         participant.setPassword(hashedPassword);
         Transaction transaction = connector.getSession().beginTransaction();
@@ -37,13 +37,13 @@ public class ParticipantService {
         return participant;
     }
 
-    public void update(Participant participant) {
+    public void updateParticipant(Participant participant) {
         Transaction transaction = connector.getSession().beginTransaction();
         connector.getSession().merge(participant);
         transaction.commit();
     }
 
-    public void delete(Participant participant) {
+    public void deleteParticipant(Participant participant) {
         Transaction transaction = connector.getSession().beginTransaction();
         connector.getSession().delete(participant);
         transaction.commit();
