@@ -2,7 +2,7 @@
   <div>
     <new-meeting-form @added="addNewMeeting($event)"></new-meeting-form>
 
-    <span v-if="meetings.length == 0">
+    <span v-if="meetings.length === 0">
                Brak zaplanowanych spotkań.
            </span>
     <h3 v-else>
@@ -11,9 +11,9 @@
 
     <meetings-list :meetings="meetings"
                    :username="username"
-                   @attend="addMeetingParticipant($event)"
-                   @unattend="removeMeetingParticipant($event)"
-                   @delete="deleteMeeting($event)"></meetings-list>
+                   @delete="deleteMeeting($event)"
+                   @attend="addParticipanttoMeeting($event)"
+                   @unattend="removeParticipantFromMeeting($event)"></meetings-list>                   
   </div>
 </template>
 
@@ -30,18 +30,52 @@
             };
         },
         methods: {
+            getMeetings() {
+                this.$http.get('meetings')
+                    .then(response => { 
+                        this.meetings = response.body;
+                    })
+            },
             addNewMeeting(meeting) {
-                this.meetings.push(meeting);
-            },
-            addMeetingParticipant(meeting) {
-                meeting.participants.push(this.username);
-            },
-            removeMeetingParticipant(meeting) {
-                meeting.participants.splice(meeting.participants.indexOf(this.username), 1);
+                this.$http.post('meetings', meeting)
+                    .then(response => {
+                        this.meetings.push(response.body);
+                    });
+                this.getMeetings();
             },
             deleteMeeting(meeting) {
+                this.$http.delete('meetings/' + meeting.id.toString())
+                    .then(response =>{
+                        this.meetings.splice(this.meetings.indexOf(meeting), 1);
+                    });
                 this.meetings.splice(this.meetings.indexOf(meeting), 1);
-            }
+                this.getMeetings();
+            },
+            addParticipanttoMeeting(meeting) {
+               meeting.participants.push(this.username);
+               this.$http.post('meetings/'+ meeting.id +'/participants', {login:this.username})
+                     .then(response => {
+                         console.log("enrolled");
+                          this.getMeetings();
+                     })
+                     .catch(response => {
+                          console.log("cannot enroll");
+                     });
+            },
+            removeParticipantFromMeeting(meeting) {
+                meeting.participants.splice(meeting.participants.indexOf(this.username), 1);                
+                this.$http.delete('meetings/'+ meeting.id + '/participants/' + this.username)
+                     .then(response => {
+                         console.log("unenrolled");
+                          this.getMeetings();
+                     })
+                     .catch(response => {
+                          console.log("cannot unenroll");
+                     });
+            },            
+        },
+        mounted() {
+            this.$nextTick(this.getMeetings());
         }
     }
 </script>

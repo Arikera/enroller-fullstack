@@ -24,7 +24,6 @@
     import LoginForm from "./LoginForm";
     import MeetingsPage from "./meetings/MeetingsPage";
     import Vue from "vue";
-
     export default {
         components: {LoginForm, MeetingsPage},
         data() {
@@ -82,7 +81,6 @@
             const token = localStorage.getItem('token');
             if (username && token) {
                 this.storeAuth(username, token);
-                // if token expired or user has been deleted - logout!
                 this.$http.get(`participants/${username}`).catch(() => this.logout());
             }
         },
@@ -99,11 +97,9 @@
     max-width: 1000px;
     margin: 0 auto;
   }
-
   .logo {
     vertical-align: middle;
   }
-
   .alert {
     padding: 10px;
     margin-bottom: 10px;
@@ -118,6 +114,4 @@
       color: white;
     }
   }
-
 </style>
-

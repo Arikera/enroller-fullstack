@@ -21,12 +21,10 @@ public class Meeting {
     @Column
     private String description;
 
-    @Column
-    private String date;
-
-    @JsonIgnore
-    @ManyToMany(mappedBy = "meetings")
-    Set<Participant> participants = new HashSet<>();
+    @ManyToMany(mappedBy = "meetings", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+	@JoinTable(name = "meeting_participant", joinColumns = { @JoinColumn(name = "meeting_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "participant_login") })
+	Set<Participant> participants = new HashSet<>();
 
     public long getId() {
         return id;
@@ -38,10 +36,6 @@ public class Meeting {
 
     public String getDescription() {
         return description;
-    }
-
-    public String getDate() {
-        return date;
     }
 
     public void setId(long id) {
@@ -56,9 +50,6 @@ public class Meeting {
         this.description = description;
     }
 
-    public void setDate(String date) {
-        this.date = date;
-    }
 
     public void addParticipant(Participant participant) {
         this.participants.add(participant);
